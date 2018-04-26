@@ -1,10 +1,19 @@
 package com.golegion2001.galery
 
-import android.support.multidex.MultiDexApplication
+import android.app.Application
+import android.content.Context
+import android.support.multidex.MultiDex
 import com.golegion2001.galery.di.galeryModule
 import org.koin.android.ext.android.startKoin
 
-class GaleryApp : MultiDexApplication() {
+
+open class GaleryApp : Application() {
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
+    }
+
     override fun onCreate() {
         super.onCreate()
         startKoin(this, galeryModule)
