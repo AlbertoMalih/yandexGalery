@@ -1,0 +1,5 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <integer name="count_columns_previews">2</integer>
+    <dimen name="height_preview">150dp</dimen>
+</resources>

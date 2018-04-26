@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="count_columns_previews">3</integer>
+    <dimen name="height_preview">200dp</dimen>
+</resources>

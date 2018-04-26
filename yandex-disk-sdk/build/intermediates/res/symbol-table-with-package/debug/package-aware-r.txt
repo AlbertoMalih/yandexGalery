@@ -1,0 +1,2 @@
+com.yandex.disk.client
+int string projest_name 0x7f150001

@@ -1,0 +1,17 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:2:1-9:12
+INJECTED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:2:1-9:12
+INJECTED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:2:1-9:12
+	package
+		ADDED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:3:11-43
+		INJECTED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml
+		INJECTED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:2:11-69
+uses-sdk
+ADDED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:5:5-7:40
+	android:targetSdkVersion
+		ADDED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:7:9-38
+	android:minSdkVersion
+		ADDED from D:\Galery\yandex-disk-sdk\AndroidManifest.xml:6:9-34
