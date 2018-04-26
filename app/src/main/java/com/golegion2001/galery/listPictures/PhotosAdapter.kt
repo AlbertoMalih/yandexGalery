@@ -8,10 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.golegion2001.galery.R
+import com.golegion2001.galery.extensions.load
 import com.golegion2001.galery.model.Photo
 import kotlinx.android.synthetic.main.photo_item.view.*
 
-class PhotosAdapter(private val viewModel: AllPhotosViewModel, private val lifecycleOwner: LifecycleOwner, private val activity: AllPhotosActivity)
+private const val VISIBLE_THRESHOLD = 2
+
+class PhotosAdapter(private val viewModel: AllPhotosViewModel, lifecycleOwner: LifecycleOwner, private val activity: AllPhotosActivity)
     : RecyclerView.Adapter<PhotosAdapter.PhotoHolder>() {
     private var listPhotos: MutableList<Photo> = mutableListOf()
     private var isLoading = false
@@ -31,22 +34,13 @@ class PhotosAdapter(private val viewModel: AllPhotosViewModel, private val lifec
     override fun getItemCount(): Int = listPhotos.size
 
     override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
-        listPhotos[position].let { photo ->
-            photo.photoUrlIsLoadedSuch.observe(lifecycleOwner, Observer {
-                viewModel.loadPreviewInsideDisplay(holder.photoView, photo)
-            })
-        }
+        listPhotos[position].let { photo -> holder.photoView.load(photo.previewUrl) }
         if ((itemCount - position) < VISIBLE_THRESHOLD) startLoading()
     }
 
 
     private fun addPhotos(photosForAdd: List<Photo>) {
         listPhotos.addAll(photosForAdd)
-        notifyDataSetChanged()
-    }
-
-    private fun addPhoto(photo: Photo) {
-        listPhotos.add(photo)
         notifyDataSetChanged()
     }
 
@@ -72,5 +66,3 @@ class PhotosAdapter(private val viewModel: AllPhotosViewModel, private val lifec
         }
     }
 }
-
-private const val VISIBLE_THRESHOLD = 2

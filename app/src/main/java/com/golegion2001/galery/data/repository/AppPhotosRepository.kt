@@ -1,59 +1,38 @@
 package com.golegion2001.galery.data.repository
 
-import android.widget.ImageView
-import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.golegion2001.galery.model.Photo
-import com.golegion2001.galery.model.parseModel.DownloadImageUrlWrapper
-import com.golegion2001.galery.model.parseModel.PhotosDirectory
+import com.golegion2001.galery.data.repository.model.DownloadImageUrlWrapper
+import com.golegion2001.galery.data.repository.model.PhotosDirectory
 import com.google.gson.Gson
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import okhttp3.*
-import java.io.File
 import java.io.IOException
 
 
-class AppPhotosRepository(private val glide: RequestManager, private val gson: Gson) : PhotosRepository {
+class AppPhotosRepository(private val jsonParser: Gson, private val okHttpClient: OkHttpClient) : PhotosRepository {
     private var countLoadedPhotos = 0
 
-    override fun setImageUrl(photo: Photo) {
-        OkHttpClient.Builder().build().newCall(Request.Builder()
+    override fun getImageUrl(photo: Photo): Completable = Completable.create { emitter ->
+        okHttpClient.newCall(Request.Builder()
                 .url(prepareUrlForDownloadingImage(photo.publicKey, photo.path)).build())
                 .enqueue(object : RequestResourceCallback() {
                     override fun doOnSuchCall(responseBody: String) {
-                        gson.fromJson(responseBody, DownloadImageUrlWrapper::class.java).href.let { urlImage ->
-                            glide.downloadOnly().load(urlImage).listener(object : RequestListener<File> {
-                                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<File>?, isFirstResource: Boolean): Boolean = true
-
-                                override fun onResourceReady(resource: File?, model: Any?, target: Target<File>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                                    photo.updateUrl(urlImage)
-                                    return true
-                                }
-                            }).preload()
+                        jsonParser.fromJson(responseBody, DownloadImageUrlWrapper::class.java).href.let { urlImage ->
+                            photo.updateUrl(urlImage)
+                            emitter.onComplete()
                         }
                     }
                 })
     }
 
-    override fun loadImage(displayView: ImageView, photo: Photo) {
-        loadResourceByUrl(displayView, photo.photoUrl)
-    }
-
-    override fun loadPreview(displayView: ImageView, previewUrl: String) {
-        loadResourceByUrl(displayView, prepareUrlForDownloadingPreview(previewUrl))
-    }
-
     override fun loadPortionPhotosUrls(): Single<List<Photo>> = Single.create<List<Photo>> { emitter ->
-        OkHttpClient().newCall(Request.Builder().url(prepareUrlForGetPhotosUrls()).build())
+        okHttpClient.newCall(createRequestFromUrl(prepareUrlForGetPhotosUrls()))
                 .enqueue(object : RequestResourceCallback() {
                     override fun doOnSuchCall(responseBody: String) {
-                        gson.fromJson(responseBody, PhotosDirectory::class.java).photosStore.items.let { loadedPhotos ->
+                        jsonParser.fromJson(responseBody, PhotosDirectory::class.java).photosStore.items.let { loadedPhotos ->
                             countLoadedPhotos += loadedPhotos.size
-//                            loadedPhotos.forEach { emitter.onNext(it) }
                             emitter.onSuccess(loadedPhotos)
                         }
                     }
@@ -64,10 +43,12 @@ class AppPhotosRepository(private val glide: RequestManager, private val gson: G
                 })
     }.subscribeOn(Schedulers.computation())
 
-
-    private fun loadResourceByUrl(displayView: ImageView, resourceUrl: String) {
-        glide.load(resourceUrl).thumbnail(0.5f).into(displayView)
+    override fun setPreviewUrl(photo: Photo) {
+        photo.previewUrl = prepareUrlForDownloadingPreview(photo.previewResourceId)
     }
+
+
+    private fun createRequestFromUrl(url: String): Request = Request.Builder().url(url).build()
 
     private fun prepareUrlForGetPhotosUrls(): String = HttpUrl.parse(PATCH_TO_STORE)?.newBuilder()
             ?.addQueryParameter(RESOURCE_ID_KEY, PHOTOS_DIRECTORY_URL)
@@ -129,11 +110,3 @@ private const val PHOTOS_DIRECTORY_URL = "https://yadi.sk/d/riJYMGpV3UeXu5"
 private const val PATCH_TO_DOWNLOAD = "https://cloud-api.yandex.net/v1/disk/public/resources/download"
 private const val SIZE_PREVIEW = "150x100"
 private const val AVAILABLE_CROP_PREVIEW = "true"
-
-//                .enqueue(object : RequestResourceCallback() {
-//                    override fun doOnSuchCall(responseBody: String) {
-//                        photo.photoUrl = gson.fromJson(responseBody, DownloadImageUrlWrapper::class.java).href
-//                        emitter.onNext(photo)
-//                        if (isOnCompete) emitter.onComplete()
-//                    }
-//                })

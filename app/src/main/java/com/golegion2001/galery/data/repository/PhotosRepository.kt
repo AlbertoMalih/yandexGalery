@@ -1,12 +1,11 @@
 package com.golegion2001.galery.data.repository
 
-import android.widget.ImageView
 import com.golegion2001.galery.model.Photo
-import io.reactivex.*
+import io.reactivex.Completable
+import io.reactivex.Single
 
 interface PhotosRepository {
-    fun loadImage(displayView: ImageView, photo: Photo)
     fun loadPortionPhotosUrls(): Single<List<Photo>>
-    fun loadPreview(displayView: ImageView, previewUrl: String)
-    fun setImageUrl(photo: Photo)//, emitter: ObservableEmitter<Photo>, isOnCompete: Boolean
+    fun getImageUrl(photo: Photo): Completable
+    fun setPreviewUrl(photo: Photo)
 }

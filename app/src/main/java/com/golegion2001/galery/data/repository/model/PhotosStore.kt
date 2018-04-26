@@ -1,4 +1,4 @@
-package com.golegion2001.galery.model.parseModel
+package com.golegion2001.galery.data.repository.model
 
 import com.golegion2001.galery.model.Photo
 import com.google.gson.annotations.Expose

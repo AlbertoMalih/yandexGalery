@@ -11,12 +11,11 @@ import android.view.Window
 import android.widget.Toast
 import com.golegion2001.galery.R
 import com.golegion2001.galery.detailPicture.DetailImageActivity
-import com.golegion2001.galery.detailPicture.URL_PHOTO_KEY
 import com.golegion2001.galery.model.Photo
 import kotlinx.android.synthetic.main.activity_all_photos.*
 import org.koin.android.architecture.ext.viewModel
 
-class AllPhotosActivity : AppCompatActivity(), AllPhotosView, LifecycleOwner {
+class AllPhotosActivity : AppCompatActivity(), LifecycleOwner {
     private val viewModel: AllPhotosViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,11 +37,15 @@ class AllPhotosActivity : AppCompatActivity(), AllPhotosView, LifecycleOwner {
         viewModel.onStartCall.observe(this, Observer { showIndicatorLoading() })
     }
 
-    fun showPhotoDetails(photo: Photo){
-        viewModel.currentPhotoContainer.currentPhoto = photo
-        startActivity(Intent(this, DetailImageActivity::class.java).putExtra(URL_PHOTO_KEY, photo))
+    fun showPhotoDetails(photo: Photo) {
+        setCurrentPhoto(photo)
+        startActivity(Intent(this, DetailImageActivity::class.java))
     }
 
+
+    private fun setCurrentPhoto(photo: Photo) {
+        viewModel.currentPhotoContainer.currentPhoto = photo
+    }
 
     private fun showMessageOnErrorLoad() {
         Toast.makeText(this, R.string.failRequestPhotos, Toast.LENGTH_LONG).show()

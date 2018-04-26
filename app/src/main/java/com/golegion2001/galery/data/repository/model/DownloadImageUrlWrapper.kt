@@ -1,4 +1,4 @@
-package com.golegion2001.galery.model.parseModel
+package com.golegion2001.galery.data.repository.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
