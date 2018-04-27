@@ -16,15 +16,16 @@ private const val VISIBLE_THRESHOLD = 2
 
 class PhotosAdapter(private val viewModel: AllPhotosViewModel, lifecycleOwner: LifecycleOwner, private val activity: AllPhotosActivity)
     : RecyclerView.Adapter<PhotosAdapter.PhotoHolder>() {
-    private var listPhotos: MutableList<Photo> = mutableListOf()
+    private var listPhotos: MutableList<Photo> = viewModel.allPhotos
     private var isLoading = false
 
 
     init {
-        viewModel.photos.observe(lifecycleOwner, Observer<List<Photo>> { photos ->
-            photos?.let { addPhotos(photos) }
+        viewModel.callIsSuch.observe(lifecycleOwner, Observer {
+            markStopLoading()
+            if (it == true) onSuchLoadPhotos()
         })
-        viewModel.isSuchCall.observe(lifecycleOwner, Observer { isLoading = false })
+        if (listPhotos.isEmpty()) viewModel.loadPhotos()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, typeHolder: Int): PhotoHolder {
@@ -39,14 +40,21 @@ class PhotosAdapter(private val viewModel: AllPhotosViewModel, lifecycleOwner: L
     }
 
 
-    private fun addPhotos(photosForAdd: List<Photo>) {
-        listPhotos.addAll(photosForAdd)
+    private fun onSuchLoadPhotos() {
         notifyDataSetChanged()
     }
 
     private fun startLoading() {
-        isLoading = true
+        markStartLoading()
         viewModel.loadPhotos()
+    }
+
+    private fun markStopLoading() {
+        isLoading = false
+    }
+
+    private fun markStartLoading() {
+        isLoading = true
     }
 
     private fun showPhotoDetails(photoPosition: Int) {

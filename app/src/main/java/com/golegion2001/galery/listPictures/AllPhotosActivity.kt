@@ -25,13 +25,10 @@ class AllPhotosActivity : AppCompatActivity(), LifecycleOwner {
 
         initDisplayPhotos()
 
-        viewModel.startLoadingPhotosUrls()
-
-        viewModel.isSuchCall.observe(this, Observer { isSuch ->
+        viewModel.callIsSuch.observe(this, Observer { isSuch ->
             isSuch?.let {
                 hideIndicatorLoading()
-                if (!isSuch)
-                    showMessageOnErrorLoad()
+                if (!isSuch) showMessageOnErrorLoad()
             }
         })
         viewModel.onStartCall.observe(this, Observer { showIndicatorLoading() })

@@ -1,5 +1,6 @@
 package com.golegion2001.galery.data.repository
 
+import android.util.Log
 import com.golegion2001.galery.model.Photo
 import com.golegion2001.galery.data.repository.model.DownloadImageUrlWrapper
 import com.golegion2001.galery.data.repository.model.PhotosDirectory
@@ -85,8 +86,10 @@ abstract class RequestResourceCallback : Callback {
                 } catch (exception: Exception) {
                     sendError(exception)
                 }
-            } else
+            } else {
+                Log.d("tag", "call: $call")
                 sendError(Exception("response not isSuccessful"))
+            }
         } ?: sendError(NullPointerException("response is null"))
     }
 
