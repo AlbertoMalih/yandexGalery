@@ -11,12 +11,19 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 
 private const val MEDIA_TYPE_IMAGE = "image"
 
+const val FAIL_LOADING_KEY = -1
+const val LOADED_ALL_PHOTOS = 0
+
 class AllPhotosViewModel(private val photosRepository: PhotosRepository,
                          val currentPhotoContainer: ContainerCurrentPhoto) : ViewModel() {
     val allPhotos: MutableList<Photo> = mutableListOf()
-    val callIsSuch = MutableLiveData<Boolean>()
+    val callIsSuch = MutableLiveData<Int>()
     val onStartCall = MutableLiveData<Boolean>()
 
+
+    init {
+        Log.d("tag", "create AllPhotosViewModel")
+    }
 
     fun loadPhotos() {
         onStartCall.value = true
@@ -36,11 +43,13 @@ class AllPhotosViewModel(private val photosRepository: PhotosRepository,
     }
 
     private fun releaseFailLoadedPhotos() {
-        callIsSuch.value = false
+        callIsSuch.value = FAIL_LOADING_KEY
     }
 
     private fun releaseSuchLoadedPhotos(loadedPhotos: List<Photo>) {
-        allPhotos.addAll(loadedPhotos)
-        callIsSuch.value = true
+        if (loadedPhotos.isNotEmpty()) {
+            allPhotos.addAll(loadedPhotos)
+        }
+        callIsSuch.value = loadedPhotos.size
     }
 }

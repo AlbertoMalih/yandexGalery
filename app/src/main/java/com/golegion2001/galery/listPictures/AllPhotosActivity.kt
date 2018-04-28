@@ -15,7 +15,9 @@ import com.golegion2001.galery.model.Photo
 import kotlinx.android.synthetic.main.activity_all_photos.*
 import org.koin.android.architecture.ext.viewModel
 
-class AllPhotosActivity : AppCompatActivity(), LifecycleOwner {
+private const val COUNT_SPAN_PHOTOS = 2
+
+class AllPhotosActivity : AppCompatActivity(), LifecycleOwner, AllPhotosView {
     private val viewModel: AllPhotosViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,34 +27,56 @@ class AllPhotosActivity : AppCompatActivity(), LifecycleOwner {
 
         initDisplayPhotos()
 
-        viewModel.callIsSuch.observe(this, Observer { isSuch ->
-            isSuch?.let {
-                hideIndicatorLoading()
-                if (!isSuch) showMessageOnErrorLoad()
-            }
-        })
-        viewModel.onStartCall.observe(this, Observer { showIndicatorLoading() })
+        initIndicatorFirstLoad()
     }
 
-    fun showPhotoDetails(photo: Photo) {
+    override fun showPhotoDetails(photo: Photo) {
         setCurrentPhoto(photo)
         startActivity(Intent(this, DetailImageActivity::class.java))
     }
 
 
+    private fun initIndicatorFirstLoad() {
+        if (isFirstLoad()) {
+            initOnStartFirstLoad()
+            initOnFinishFirstLoad()
+        }
+    }
+
+    private fun initOnFinishFirstLoad() {
+        viewModel.onStartCall.observe(this, object : Observer<Boolean> {
+            override fun onChanged(t: Boolean?) {
+                onStartFirstLoad()
+                viewModel.onStartCall.removeObserver(this)
+            }
+        })
+    }
+
+    private fun initOnStartFirstLoad() {
+        viewModel.callIsSuch.observe(this, object : Observer<Int> {
+            override fun onChanged(countLoadedPhotos: Int?) {
+                onEndFirstLoad()
+                if (countLoadedPhotos == FAIL_LOADING_KEY ) showMessageOnErrorLoad()
+                viewModel.callIsSuch.removeObserver(this)
+            }
+        })
+    }
+
+    private fun isFirstLoad() = viewModel.allPhotos.isEmpty()
+
     private fun setCurrentPhoto(photo: Photo) {
         viewModel.currentPhotoContainer.currentPhoto = photo
     }
 
-    private fun showMessageOnErrorLoad() {
+    override fun showMessageOnErrorLoad() {
         Toast.makeText(this, R.string.failRequestPhotos, Toast.LENGTH_LONG).show()
     }
 
-    private fun showIndicatorLoading() {
+    fun onStartFirstLoad() {
         displayLoad.visibility = View.VISIBLE
     }
 
-    private fun hideIndicatorLoading() {
+    fun onEndFirstLoad() {
         displayLoad.visibility = View.GONE
     }
 
@@ -62,8 +86,7 @@ class AllPhotosActivity : AppCompatActivity(), LifecycleOwner {
 
     private fun initDisplayPhotos() {
         with(allPhotos) {
-            setHasFixedSize(true)
-            layoutManager = GridLayoutManager(this@AllPhotosActivity, resources.getInteger(R.integer.count_columns_previews))
+            layoutManager = GridLayoutManager(this@AllPhotosActivity, COUNT_SPAN_PHOTOS)
             adapter = createAdapter()
         }
     }
