@@ -1,9 +1,9 @@
 package com.golegion2001.galery.data.repository
 
 import android.util.Log
-import com.golegion2001.galery.model.Photo
 import com.golegion2001.galery.data.repository.model.DownloadImageUrlWrapper
 import com.golegion2001.galery.data.repository.model.PhotosDirectory
+import com.golegion2001.galery.model.Photo
 import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -14,6 +14,7 @@ import java.io.IOException
 
 class AppPhotosRepository(private val jsonParser: Gson, private val okHttpClient: OkHttpClient) : PhotosRepository {
     private var countLoadedPhotos = 0
+    override val allPhotos: MutableList<Photo> = ArrayList()
 
     override fun getImageUrl(photo: Photo): Completable = Completable.create { emitter ->
         okHttpClient.newCall(Request.Builder()
@@ -32,9 +33,10 @@ class AppPhotosRepository(private val jsonParser: Gson, private val okHttpClient
         okHttpClient.newCall(createRequestFromUrl(prepareUrlForGetPhotosUrls()))
                 .enqueue(object : RequestResourceCallback() {
                     override fun doOnSuchCall(responseBody: String) {
-                        jsonParser.fromJson(responseBody, PhotosDirectory::class.java).photosStore.items.let { loadedPhotos ->
-                            countLoadedPhotos += loadedPhotos.size
-                            emitter.onSuccess(loadedPhotos)
+                        jsonParser.fromJson(responseBody, PhotosDirectory::class.java).photosStore.items.let { photosPortion ->
+                            countLoadedPhotos += photosPortion.size
+                            allPhotos.addAll(photosPortion)
+                            emitter.onSuccess(photosPortion)
                         }
                     }
 

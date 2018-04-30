@@ -2,7 +2,6 @@ package com.golegion2001.galery.listPictures
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import android.util.Log
 import com.golegion2001.galery.data.repository.PhotosRepository
 import com.golegion2001.galery.model.ContainerCurrentPhoto
 import com.golegion2001.galery.model.Photo
@@ -22,12 +21,16 @@ class AllPhotosViewModel(private val photosRepository: PhotosRepository,
 
 
     init {
-        Log.d("tag", "create AllPhotosViewModel")
+        loadLoadedPhotos()
     }
 
     fun loadPhotos() {
         onStartCall.value = true
         loadPhotoUrlsFromRepository()
+    }
+
+    private fun loadLoadedPhotos() {
+        allPhotos.addAll(photosRepository.allPhotos)
     }
 
     private fun loadPhotoUrlsFromRepository() {

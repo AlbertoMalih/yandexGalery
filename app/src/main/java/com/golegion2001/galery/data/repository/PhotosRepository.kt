@@ -5,6 +5,7 @@ import io.reactivex.Completable
 import io.reactivex.Single
 
 interface PhotosRepository {
+    val allPhotos: MutableList<Photo>
     fun loadPortionPhotosUrls(): Single<List<Photo>>
     fun getImageUrl(photo: Photo): Completable
     fun setPreviewUrl(photo: Photo)
