@@ -3,7 +3,9 @@ package com.golegion2001.galery.model
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class Photo(var photoUrl: String = "", var previewUrl: String = "",
+const val MEDIA_TYPE_IMAGE = "image"
+
+data class Photo(var imageUrl: String = "", var previewUrl: String = "",
                  @SerializedName("created") @Expose var createdDate: String = "",
                  @SerializedName("path") @Expose var path: String = "",
                  @SerializedName("public_key") @Expose var publicKey: String = "",
@@ -11,8 +13,8 @@ data class Photo(var photoUrl: String = "", var previewUrl: String = "",
                  @SerializedName("media_type") @Expose var mediaType: String = "") {
 
     fun updateUrl(url: String) {
-        photoUrl = url
+        imageUrl = url
     }
 
-    fun isLoaded() = photoUrl.isNotEmpty()
+    fun isLoaded() = imageUrl.isNotEmpty()
 }

@@ -4,26 +4,26 @@ import android.util.Log
 import com.golegion2001.galery.data.repository.model.DownloadImageUrlWrapper
 import com.golegion2001.galery.data.repository.model.PhotosDirectory
 import com.golegion2001.galery.model.Photo
+import com.golegion2001.galery.schedulers.SchedulerProvider
 import com.google.gson.Gson
-import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
 import okhttp3.*
 import java.io.IOException
 
 
-class AppPhotosRepository(private val jsonParser: Gson, private val okHttpClient: OkHttpClient) : PhotosRepository {
+class AppPhotosRepository(private val jsonParser: Gson, private val okHttpClient: OkHttpClient,
+                          private val schedulersManager: SchedulerProvider) : PhotosRepository {
     private var countLoadedPhotos = 0
     override val allPhotos: MutableList<Photo> = ArrayList()
 
-    override fun getImageUrl(photo: Photo): Completable = Completable.create { emitter ->
+    override fun loadImageUrl(photo: Photo): Single<String> = Single.create<String> { emitter ->
         okHttpClient.newCall(Request.Builder()
                 .url(prepareUrlForDownloadingImage(photo.publicKey, photo.path)).build())
                 .enqueue(object : RequestResourceCallback() {
                     override fun doOnSuchCall(responseBody: String) {
                         jsonParser.fromJson(responseBody, DownloadImageUrlWrapper::class.java).href.let { urlImage ->
                             photo.updateUrl(urlImage)
-                            emitter.onComplete()
+                            emitter.onSuccess(urlImage)
                         }
                     }
                 })
@@ -44,7 +44,7 @@ class AppPhotosRepository(private val jsonParser: Gson, private val okHttpClient
                         emitter.onError(exception)
                     }
                 })
-    }.subscribeOn(Schedulers.computation())
+    }.subscribeOn(schedulersManager.computation())
 
     override fun setPreviewUrl(photo: Photo) {
         photo.previewUrl = prepareUrlForDownloadingPreview(photo.previewResourceId)
