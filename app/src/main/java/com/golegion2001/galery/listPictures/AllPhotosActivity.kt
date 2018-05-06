@@ -22,7 +22,6 @@ class AllPhotosActivity : AppCompatActivity(), LifecycleOwner, AllPhotosView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initFullScreen()
         setContentView(R.layout.activity_all_photos)
 
         initDisplayPhotos()
@@ -80,9 +79,6 @@ class AllPhotosActivity : AppCompatActivity(), LifecycleOwner, AllPhotosView {
         displayLoad.visibility = View.GONE
     }
 
-    private fun initFullScreen() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-    }
 
     private fun initDisplayPhotos() {
         with(allPhotos) {
